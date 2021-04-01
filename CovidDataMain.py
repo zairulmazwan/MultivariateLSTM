@@ -22,9 +22,10 @@ datasetMsia = datasetMsia[col]
 
 print(datasetMsia.head(10))
 datasetMsia.to_csv('MalaysiaDataset.csv')
+print("Row : ", len(datasetMsia))
 
 
-datasetMsiaDropISOCode = datasetMsia.drop(["iso_code"], axis=1, inplace=False)
-datasetMsia.to_csv('DropISOMalaysia.csv')
+#datasetMsiaDropISOCode = datasetMsia.drop(["iso_code"], axis=1, inplace=False)
+#datasetMsia.to_csv('DropISOMalaysia.csv')
 
 
