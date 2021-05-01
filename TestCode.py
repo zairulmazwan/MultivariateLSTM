@@ -7,6 +7,7 @@ print('testVar1_%d testVar2_%d' %(var1, var2))
 
 import  pandas as pd
 from pandas import concat
+from ConvertToSupervised import series_to_supervised
 
 data = pd.DataFrame({
     "Col1": [10, 20, 15, 30, 45],
@@ -27,7 +28,7 @@ print("Number of colums : ", len(data.loc[0]))
 numCol = len(data.loc[0])
 
 for i in range(numCol-1):
-    cols.append(data.iloc[:,i].shift(1))
+    cols.append(data.iloc[:,i].shift(1)) #all row and i col
 
 cols.append(data.iloc[:,numCol-1])#get the last colum as the target var
 
@@ -39,3 +40,4 @@ print("Type : " ,type(agg))
 print("The final data after dropped the first row : \n",agg.drop(agg.index[0], inplace=True)) #inplace is needed as True othewise the var will not be updated with the dropped row
 print("Target var : \n", agg.iloc[:,2]) #how to get certain col using index
 print("Target var (loc) : \n", agg['Col3']) #how to get certain col using index
+

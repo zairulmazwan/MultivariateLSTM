@@ -18,10 +18,10 @@ print("Data 2 : ",data2)
 joinedData = [data1,data2]
 print("Joined data : ",joinedData)
 
-'''
+
 fullData = pd.concat(joinedData, axis=1, join='outer')
 print(fullData)
 print("CS Course only:")
 print(fullData.loc[fullData.Course == 'CS'])
 #print(fullData.loc[1])
-'''
+

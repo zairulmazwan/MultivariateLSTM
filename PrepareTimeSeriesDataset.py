@@ -11,9 +11,9 @@ data = pd.DataFrame({
      "Col2": [13, 23, 18, 33, 48],
      "Col3": [17, 27, 22, 37, 52]
 })
-
-listEg = [[10, 20, 15, 30, 45],[13, 23, 18, 33, 48],[17, 27, 22, 37, 52]]
-print("Row 12 : ",len(listEg) if type(listEg) is list else 99)
+print("Raw data : ", data)
+# listEg = [[10, 20, 15, 30, 45],[13, 23, 18, 33, 48],[17, 27, 22, 37, 52]]
+# print("Row 12 : ",len(listEg) if type(listEg) is list else 99)
 
 #print("Data : ",data)
 #print("Data type : ",type(data))
@@ -25,21 +25,18 @@ n_vars = 1 if type(data) is list else data.shape[1]
 
 
 for i in range(n_in, 0, -1):
-        print("i : ",i)
-        print("Data shift : ",data.shift(i))
-        cols.append(data.shift(i))
-        names += [('var%d(t-%d)' % (j+1, i)) for j in range(n_vars)]
+		cols.append(data.shift(i))
+		names += [('var%d(t-%d)' % (j+1, i)) for j in range(n_vars)]
 
 print("Cols 1: ",cols)
 print("Names 1: ",names)
 
 for i in range(0, n_out):
-    cols.append((data.shift(-1)))
-    if i==0:
-        names += [('var%d(t)' % (j+1)) for j in range(n_vars)]
-        print("This found")
-    else:
-        names += [('var%d(t+%d)' % (j+1, i)) for j in range(n_vars)]
+		cols.append(data.shift(-i))
+		if i == 0:
+			names += [('var%d(t)' % (j+1)) for j in range(n_vars)]
+		else:
+			names += [('var%d(t+%d)' % (j+1, i)) for j in range(n_vars)]
 
 
 
@@ -49,6 +46,7 @@ print("Names 2: ",names)
 
 agg = concat(cols, axis=1)
 agg.columns = names
+agg.dropna(inplace=True)
 
 print("Agg : ", agg)
 
