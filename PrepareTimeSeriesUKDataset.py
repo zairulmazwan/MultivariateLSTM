@@ -34,6 +34,8 @@ rawData=rawData.set_index('date') #setting date as the index
 print(rawData.head())
 rawData.dropna(inplace=True)
 rawData.to_csv("Datasets/RawDataWithoutNA.csv")
+tdDataset = series_to_supervised(rawData,1,1)
+tdDataset.to_csv("Datasets/TSDatasetNonScale.csv")
 
 
 '''
@@ -55,7 +57,7 @@ CleanedTSDataset.dropna(inplace=True)
 # ensure all data is float
 #values = values.astype('float32')
 
-CleanedTSDataset.to_csv('Datasets/CleanedTSDatasetWithoutNA.csv')
+#CleanedTSDataset.to_csv('Datasets/CleanedTSDatasetWithoutNA.csv')
 
 
 #CleanedTSDataset.to_csv('Datasets/CleanedTSDataset.csv')
