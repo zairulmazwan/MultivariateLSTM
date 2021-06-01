@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import random
+import pandas as pd
 random.seed(5)
 
 import statsmodels
@@ -22,11 +23,12 @@ import pandas as pd
 # plt.plot(stationary_series)
 # plt.title('Stationary Time Series')
 # plt.show()
-col = ["total_admission"]
-dataframe = pd.read_csv('../Datasets/UKCovid-Rawdata.csv', usecols=col, engine='python')
+col = ["date","total_admission_UK"]
+dataframe = pd.read_csv('../Datasets/UKCovid-Rawdata_1.csv', usecols=col, engine='python')
+dataframe['date'] = pd.to_datetime(dataframe['date'], format='%d/%m/%Y')
 dataframe.dropna(inplace=True)
 print("Shape : ", dataframe.shape)
-plt.plot(dataframe)
+dataframe.plot(x='date', y='total_admission_UK')
 plt.title('Admission Time Series')
 plt.show()
 
@@ -60,5 +62,7 @@ class StationarityTests:
             print(dfResults)
 
 sTest = StationarityTests()
-sTest.ADF_Stationarity_Test(dataframe, printResults = True)
+sTest.ADF_Stationarity_Test(dataframe["total_admission_UK"], printResults = True)
 print("Is the time series stationary? {0}".format(sTest.isStationary))
+print("p-value? {}".format(sTest.pValue))
+print('Significant level? %a'%(sTest.SignificanceLevel))

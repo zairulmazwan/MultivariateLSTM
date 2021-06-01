@@ -13,8 +13,9 @@ from matplotlib import pyplot
 numpy.random.seed(7)
 
 # load the dataset
-col = ["total_admission"]
-dataframe = pd.read_csv('../Datasets/UKCovid-Rawdata.csv', usecols=col, engine='python')
+col = ["total_admission_UK"]
+#dataframe = pd.read_csv('../Datasets/UKCovid-Rawdata.csv', usecols=col, engine='python')
+dataframe = pd.read_csv('../Datasets/UKCovid-Rawdata_1.csv', usecols=col, engine='python')
 dataframe.dropna(inplace=True)
 
 dataset = dataframe.values
@@ -29,7 +30,7 @@ dataset = scaler.fit_transform(dataset)
 
 
 # split into train and test sets
-train_size = int(len(dataset) * 0.75)
+train_size = int(len(dataset) * 0.65)
 test_size = len(dataset) - train_size
 train, test = dataset[0:train_size,:], dataset[train_size:len(dataset),:]
 print(len(train), len(test))
@@ -68,7 +69,7 @@ model.compile(loss='mean_squared_error', optimizer='adam', metrics=['accuracy'])
 #model.compile(loss='mae', optimizer='adam')
 
 # fit network
-history = model.fit(trainX, trainY, epochs=50, batch_size=10, validation_data=(testX, testY), verbose=2, shuffle=False)
+history = model.fit(trainX, trainY, epochs=100, batch_size=15, validation_data=(testX, testY), verbose=2, shuffle=False)
 # plot history
 pyplot.plot(history.history['loss'], label='train')
 pyplot.plot(history.history['val_loss'], label='test')
@@ -92,6 +93,7 @@ print('Test Score: %.2f RMSE' % (testScore))
 
 # shift train predictions for plotting
 trainPredictPlot = numpy.empty_like(dataset)
+print("dataset shape : ", dataset.shape)
 trainPredictPlot[:, :] = numpy.nan
 trainPredictPlot[look_back:len(trainPredict)+look_back, :] = trainPredict
 # shift test predictions for plotting
