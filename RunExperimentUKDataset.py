@@ -10,6 +10,8 @@ from keras.layers import LSTM
 from keras.models import Sequential
 from keras.layers import Dense, concatenate
 import numpy
+import VariableCombinations.VarCombinations as vc
+
 
 
 def series_to_supervised(data, n_in=1, n_out=1, dropnan=True):
@@ -35,18 +37,12 @@ def series_to_supervised(data, n_in=1, n_out=1, dropnan=True):
 		agg.dropna(inplace=True)
 	return agg
 
-def experiment(data, iter):
+def experiment(data, iter, i, cols, rawData):
 
-	#cols = ["date","total_admission_UK","total_cases_specimen","new_cases_specimen","season","national_lockdown","first_vaccine","second_vaccine"]
-	cols = ["date","total_admission_UK","new_cases_specimen","season","first_vaccine","second_vaccine"]
-	#cols = ["date","total_cases","new_cases","first_vaccine","second_vaccine","total_admission"]
-	#cols = ["date","total_admission","total_cases","new_cases"]
-	#cols = ["date","total_cases","new_cases","first_vaccine","second_vaccine","total_admission"]
-	rawData = pd.read_csv('Datasets/UKCovid-Rawdata_1.csv', header=0, usecols=cols, index_col=0)
-	#rawData = pd.read_csv('pollution.csv', header=0, index_col=0)
+	# filename = 'Datasets/UKCovid-Rawdata_1.csv'
+	# cols = vc.getVarCombination(filename, 29)
+	# rawData = pd.read_csv(filename, header=0, usecols=cols, index_col=0)
 
-	#cols = ["date","lockdown", "new_cases"]
-	#rawData = pd.read_csv("CleanedDataset.csv", header=0, usecols=cols, index_col=0)
 
 	rawData.dropna(inplace=True)
 	#print(rawData.iloc[:5,2])
@@ -60,12 +56,16 @@ def experiment(data, iter):
 	print(values[:5,:])
 
 	encoder = LabelEncoder()
-	values[:,2] = encoder.fit_transform(values[:,2])#encode the categorical variable - season
-	#values[:,4] = encoder.fit_transform(values[:,4])#encode the categorical variable - SE for pollution data
-	values = values.astype('float32')
+	seasonInd = vc.getSeasonIndex(rawData)
+	if (seasonInd != -1):
+		#print("season index : ", seasonInd)
+		values[:,seasonInd] = encoder.fit_transform(values[:,seasonInd])#encode the categorical variable - season
+		#values[:,4] = encoder.fit_transform(values[:,4])#encode the categorical variable - SE for pollution data
+		values = values.astype('float32')
 
-	print("Season col",values[:5,2])
-	print("Season col unique values numpy : ",np.unique(values[:,2])) #to get distinct values of the col
+		print("Season col",values[:2,seasonInd])
+		print("Season col unique values numpy : ",np.unique(values[:,seasonInd])) #to get distinct values of the col
+
 
 	# normalize features
 	scaler = MinMaxScaler(feature_range=(0, 1))
@@ -76,10 +76,12 @@ def experiment(data, iter):
 	reframed = series_to_supervised(scaled, 1, 1)
 	print("Cols ", reframed.columns)
 
-	reframed.drop(reframed.columns[[6,7,8,9]], axis=1, inplace=True)
-	#reframed.drop(reframed.columns[[4,5]], axis=1, inplace=True)
-	#reframed.drop(reframed.columns[[8,9,10,11,12,13]], axis=1, inplace=True)
+	print("cols len ", len(cols)-1)
+	for k in range(1,len(cols)-1):
+		reframed.drop(reframed.columns[[-1]], axis=1, inplace=True)
 	print("Cols after drop", reframed.columns)
+
+
 	#print("varT5 ",reframed.iloc[:5,5])
 	#print("Length refarmed ", reframed.shape[1]) #shape[1] - for columns, shape[0] - for row
 	#reframed.to_csv("Datasets/tsDataset.csv")
@@ -187,7 +189,7 @@ def experiment(data, iter):
 	#pyplot.show()
 	pyplot.title("Admission Prediction - Iter "+str(iter), y=1.0, loc='center')
 
-	pyplot.savefig("Results/res_"+str(iter)+".png")
+	pyplot.savefig("Results/res_"+str(i)+"_"+str(iter)+".png")
 	pyplot.clf()
 
 	# calculate RMSE
@@ -198,3 +200,4 @@ def experiment(data, iter):
 	# print(' Train accuracy:', score[1])
 	#model.summary()
 	data.append(rmse)
+
