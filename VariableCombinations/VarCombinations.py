@@ -65,9 +65,9 @@ def runCombination(n, r):
             if (avail==False):
                 res+=[temp]
             counter+=1
-        print(res)
-        print(len(res))
-        print("Number of tries : ", counter)
+        # print(res)
+        # print(len(res))
+        # print("Number of tries : ", counter)
     return res
 
 
@@ -98,33 +98,34 @@ def getVarCombination (filename, recPos): #input which record to read from the f
 
     data = pd.read_csv(filename)
     cols = list(data.columns) #read the columns from the file
-    print(cols)
+    #print(cols)
     varDict = varDictionary(cols) #create a dictionary for the variables
-    print(varDict)
+    #print(varDict)
 
 
-    with open("VariableCombinations\\combRes.csv", 'r') as readfile:
+    with open("VariableCombinations/combRes.csv", 'r') as readfile:
 
         lines = readfile.readlines() #read all lines in the file
 
         line = lines[recPos].split(",") #lines is a text, to convert into a list and split by a comma
+        #print(line)
         cols2 = ["date","total_admission_UK"] #the default variables to be used
         #for every element in lines - the key of the variables
         for j in range(0,len(line)-1): #to ignore "\n" in the list - line has this value because of new line in the file
 
             varInd = int(line[j]) #line consiste of the variable's key in the dictionary, need to convert into int
             cols2 += [varDict[varInd+1]] #adding the variables retrieved from line
-        print("cols2  : ",cols2)
+        #print("cols2  : ",cols2)
         return cols2
 
 
 
 # filename = '../Datasets/UKCovid-Rawdata_1.csv'
-# cols = getVarCombination (filename,57)
+# cols = getVarCombination (filename,0)
 #
 # rawData = pd.read_csv('../Datasets/UKCovid-Rawdata_1.csv', header=0, usecols=cols, index_col=0)
 # print(rawData.columns)
-#
+
 def getSeasonIndex (rawData): #passing the rawdata variable
     if ("season" in rawData.columns):
         rowCol = list(rawData.columns)

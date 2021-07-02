@@ -37,7 +37,7 @@ def series_to_supervised(data, n_in=1, n_out=1, dropnan=True):
 		agg.dropna(inplace=True)
 	return agg
 
-def experiment(data, iter, i, cols, rawData):
+def experiment(data, iter, i, cols, rawData, path):
 
 	# filename = 'Datasets/UKCovid-Rawdata_1.csv'
 	# cols = vc.getVarCombination(filename, 29)
@@ -48,12 +48,12 @@ def experiment(data, iter, i, cols, rawData):
 	#print(rawData.iloc[:5,2])
 	#print("Season ",rawData['season'].head())
 	# print("Len ",len(rawData))
-	print(rawData.columns)
-	print("Raw data shape: ",rawData.shape)
+	# print(rawData.columns)
+	# print("Raw data shape: ",rawData.shape)
 	#print("Season col unique values",rawData.iloc[:,2].unique())
 
 	values = rawData.values
-	print(values[:5,:])
+	#print(values[:5,:])
 
 	encoder = LabelEncoder()
 	seasonInd = vc.getSeasonIndex(rawData)
@@ -63,8 +63,8 @@ def experiment(data, iter, i, cols, rawData):
 		#values[:,4] = encoder.fit_transform(values[:,4])#encode the categorical variable - SE for pollution data
 		values = values.astype('float32')
 
-		print("Season col",values[:2,seasonInd])
-		print("Season col unique values numpy : ",np.unique(values[:,seasonInd])) #to get distinct values of the col
+		# print("Season col",values[:2,seasonInd])
+		# print("Season col unique values numpy : ",np.unique(values[:,seasonInd])) #to get distinct values of the col
 
 
 	# normalize features
@@ -74,12 +74,12 @@ def experiment(data, iter, i, cols, rawData):
 
 	# frame as supervised learning
 	reframed = series_to_supervised(scaled, 1, 1)
-	print("Cols ", reframed.columns)
+	#print("Cols ", reframed.columns)
 
-	print("cols len ", len(cols)-1)
+	#print("cols len ", len(cols)-1)
 	for k in range(1,len(cols)-1):
 		reframed.drop(reframed.columns[[-1]], axis=1, inplace=True)
-	print("Cols after drop", reframed.columns)
+	#print("Cols after drop", reframed.columns)
 
 
 	#print("varT5 ",reframed.iloc[:5,5])
@@ -96,26 +96,26 @@ def experiment(data, iter, i, cols, rawData):
 	# print("Test : ",testSize)
 	train = values[:trainSize,:]
 	test = values[trainSize:,:]
-	print("Total rec : ",values.shape)
-	print("Train : ",len(train))
-	print("Test : ",len(test))
+	#print("Total rec : ",values.shape)
+	#print("Train : ",len(train))
+	#print("Test : ",len(test))
 
 
 
 	#split dataset into input and output for train and test
 	trainX, trainY = train[:,:-1], train[:,-1] #getting the input and the target var for train
-	print("Shape TrainX ",trainX.shape)
-	print("Shape TrainY ",trainY.shape)
+	#print("Shape TrainX ",trainX.shape)
+	#print("Shape TrainY ",trainY.shape)
 	testX, testY = test[:,:-1], test[:,-1] #getting the input and the target var for test
-	print("Shape testX ",testX.shape)
-	print("Shape testY ",testY.shape)
+	#print("Shape testX ",testX.shape)
+	#print("Shape testY ",testY.shape)
 
 
 
 	# reshape input to be 3D [samples, timesteps, features]
 	trainX = trainX.reshape((trainX.shape[0], 1, trainX.shape[1]))
 	testX = testX.reshape((testX.shape[0], 1, testX.shape[1]))
-	print(trainX.shape, trainY.shape, testX.shape, testY.shape)
+	#print(trainX.shape, trainY.shape, testX.shape, testY.shape)
 
 	# design network
 	model = Sequential()
@@ -143,14 +143,14 @@ def experiment(data, iter, i, cols, rawData):
 	# invert scaling for forecast
 	inv_yhat = concatenate((yhat, testX[:, 1:]), axis=1)
 	inv_yhat = scaler.inverse_transform(inv_yhat)
-	print(inv_yhat.shape)
+	#print(inv_yhat.shape)
 	inv_yhat = inv_yhat[:,0]
 
 	inv_yhatTrain = concatenate((yhatTrain, trainX[:, 1:]), axis=1)
 	inv_yhatTrain = scaler.inverse_transform(inv_yhatTrain)
-	print(inv_yhatTrain.shape)
+	#print(inv_yhatTrain.shape)
 	inv_yhatTrain = inv_yhatTrain[:,0]
-	print("dataset shape 150 : ", inv_yhatTrain.shape)
+	#print("dataset shape 150 : ", inv_yhatTrain.shape)
 
 
 	# invert scaling for actual
@@ -173,7 +173,7 @@ def experiment(data, iter, i, cols, rawData):
 	yHatTrain = numpy.zeros((len(yplot),1))
 	yHatTrain[:, :] = numpy.nan
 	inv_yhatTrain = inv_yhatTrain.reshape((len(inv_yhatTrain),1))
-	print("Shape inv_yhatTrain : ", inv_yhatTrain.shape)
+	#print("Shape inv_yhatTrain : ", inv_yhatTrain.shape)
 	yHatTrain[1:len(inv_yhatTrain)+1,:] = inv_yhatTrain
 	pyplot.plot(yHatTrain)
 
@@ -181,21 +181,21 @@ def experiment(data, iter, i, cols, rawData):
 	yHatTest = numpy.zeros((len(yplot),1)) #prepare an array with zero values, same shape of yplot
 	yHatTest[:, :] = numpy.nan #nan is required to avoid plotting zero in the graph
 	inv_yhat = inv_yhat.reshape((len(inv_yhat),1)) #currently inv_yhat shape is (n,) - a list like
-	print("Shape inv_yhat : ", inv_yhat.shape)
-	print("Shape yHatTest : ", yHatTest.shape)
+	# print("Shape inv_yhat : ", inv_yhat.shape)
+	# print("Shape yHatTest : ", yHatTest.shape)
 	yHatTest [len(inv_yhatTrain):len(yHatTest),:] = inv_yhat #getting the inv_yhat data into the array to a specific data point
 	pyplot.plot(yHatTest)
 
 	#pyplot.show()
 	pyplot.title("Admission Prediction - Iter "+str(iter), y=1.0, loc='center')
 
-	pyplot.savefig("Results/res_"+str(i)+"_"+str(iter)+".png")
+	pyplot.savefig(path+"/res_"+str(i)+"_"+str(iter)+".png")
 	pyplot.clf()
 
 	# calculate RMSE
 	rmse = sqrt(mean_squared_error(inv_y, inv_yhat))
 	#print('Test RMSE: %.3f' % rmse)
-	print('Test RMSE:',rmse)
+	#print('Test RMSE:',rmse)
 	# score = model.evaluate(trainX, trainY, batch_size=25, verbose=0)
 	# print(' Train accuracy:', score[1])
 	#model.summary()
