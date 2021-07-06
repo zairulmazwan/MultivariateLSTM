@@ -2,13 +2,14 @@ import  RunExperimentUKDataset as exp
 import pandas as pd
 import VariableCombinations.VarCombinations as vc
 import os
+import statistics
 
 
 
 def writeRes (fileName, res, bigRes):
     fileWriter = open(fileName, 'w')
-    realRes = []
-    expRes = []
+    realRes = [] #realNumberResult
+    expRes = [] #experiment result
     for i in res:
         #print(i)
         realNum = i.real
@@ -29,11 +30,16 @@ def writeRes (fileName, res, bigRes):
     fileWriter.write(",")
     fileWriter.write(str(min(realRes)))
     expRes.append(min(realRes))
+    fileWriter.write("\n")
+    fileWriter.write("Stdev")
+    fileWriter.write(",")
+    fileWriter.write(str(statistics.stdev(realRes)))
+    expRes.append(statistics.stdev(realRes))
     bigRes.append(expRes)
 
 
-bigRes  = []
-for i in range(61,62): #experiment for which var
+bigRes  = [] #to get all results from each experiment (by variables)
+for i in range(0,62): #experiment for which var
     #print("Var : ",i)
     filename = 'Datasets/UKCovid-Rawdata_1.csv'
     cols = vc.getVarCombination(filename, i)
@@ -52,7 +58,7 @@ for i in range(61,62): #experiment for which var
 
     rawData = pd.read_csv(filename, header=0, usecols=cols, index_col=0)
     data = [] #this variable is created empty for every new experiment
-    for j in range(1,4):
+    for j in range(1,26):
         print("Var : ",i)
         print("Iter : ",j)
         exp.experiment(data, j, i, cols, rawData, path)
@@ -64,7 +70,7 @@ for i in range(61,62): #experiment for which var
     writeRes(filename, data, bigRes)
 
 fileNameBigRes = "Results/All_Results.csv"
-bigRes = pd.DataFrame(bigRes)
+bigRes = pd.DataFrame(bigRes, columns=["Mean","Max","Min","Stdev"])
 bigRes.to_csv(fileNameBigRes)
 
 
